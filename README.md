@@ -1,5 +1,7 @@
 This is a very simple sample application showing how to do DSL queries for Elasticseach. Before you run the application, please index the following document into Elasticsearch using Kibana:
 
+Kibana commands in Dev Tools:
+
 PUT twitter
 {
   "mappings": {
