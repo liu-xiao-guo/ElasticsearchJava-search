@@ -141,7 +141,7 @@ public class ElasticsearchJavaSearch {
         builder4.from(0);
         builder4.size(2);
         builder4.timeout(new TimeValue(60, TimeUnit.SECONDS));
-        searchSourceBuilder.sort("DOB", SortOrder.ASC);
+        builder4.sort("DOB", SortOrder.ASC);
 
         SearchRequest searchRequest4 = new SearchRequest();
         searchRequest4.indices(INDEX_NAME);
