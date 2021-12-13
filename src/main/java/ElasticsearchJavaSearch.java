@@ -14,6 +14,7 @@ import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
@@ -145,11 +146,14 @@ public class ElasticsearchJavaSearch {
 
         SearchRequest searchRequest4 = new SearchRequest();
         searchRequest4.indices(INDEX_NAME);
-        searchRequest4.searchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequest4.searchType(SearchType.DFS_QUERY_THEN_FETCH);;
         searchRequest4.source(builder4);
         try {
             SearchResponse searchResponse = null;
             searchResponse = client.search(searchRequest4, RequestOptions.DEFAULT);
+
+            System.out.println(searchResponse);
+
             if (searchResponse.getHits().getTotalHits().value > 0) {
                 SearchHit[] searchHit = searchResponse.getHits().getHits();
                 for (SearchHit hit : searchHit) {
@@ -158,6 +162,43 @@ public class ElasticsearchJavaSearch {
 
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Search 5: highlight
+        System.out.println("****************** Search 5");
+        HighlightBuilder highlightBuilder = new HighlightBuilder()
+                .postTags("<mytag>")
+                .preTags("</mytag>")
+                .field("user");
+
+        MatchQueryBuilder matchQueryBuilder3 = new MatchQueryBuilder("user", "朝阳");
+        MatchQueryBuilder matchQueryBuilder4 = new MatchQueryBuilder("address", "北京");
+
+        RangeQueryBuilder rangeQueryBuilder5 = new RangeQueryBuilder("age").from(25).to(30);
+        BoolQueryBuilder boolQueryBuilder5 = new BoolQueryBuilder()
+                .must(matchQueryBuilder)
+                .must(matchQueryBuilder3)
+                .should(rangeQueryBuilder5);
+
+        SearchSourceBuilder builder5 = new SearchSourceBuilder().query(boolQueryBuilder5);
+        builder5.from(0);
+        builder5.size(2);
+        builder5.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        builder5.sort("DOB", SortOrder.ASC);
+        builder5.highlighter(highlightBuilder);
+
+        SearchRequest searchRequest5 = new SearchRequest();
+        searchRequest5.indices(INDEX_NAME);
+        searchRequest5.searchType(SearchType.DEFAULT);;
+        searchRequest5.source(builder5);
+        try {
+            SearchResponse searchResponse = null;
+            searchResponse = client.search(searchRequest5, RequestOptions.DEFAULT);
+
+            System.out.println(searchResponse);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
